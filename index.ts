@@ -1,4 +1,4 @@
-import {LambdaGlobalContext,} from "aws-lambda-helper";
+import {LambdaGlobalContext} from "aws-lambda-helper";
 import {ServerModule} from "./src/server/ServerModule";
 
 export async function handler(event: any, context: any) {

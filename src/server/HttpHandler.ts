@@ -5,32 +5,38 @@ import {TotpHttpHandler} from "./TotpHttpHandler";
 import {AuthenticationVerifyer, JsonRpcRequest} from "ferrum-plumbing";
 
 export class HttpHandler implements LambdaHttpHandler {
-    constructor(private totpHandler: TotpHttpHandler, private authVerifyer: AuthenticationVerifyer) { }
+    constructor(private totpHandler: TotpHttpHandler, /*private authVerifyer: AuthenticationVerifyer*/) { }
 
-    async handle(request: LambdaHttpRequest, context: any): Promise<LambdaHttpResponse> {
-        if (!this.authVerifyer.isValid(request.headers)) {
-            return {
-                body: 'Bad secret',
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'text/html',
-                },
-                isBase64Encoded: false,
-                statusCode: 400,
-            };
-        }
+    async handle(request: LambdaHttpRequest,context: any): Promise<LambdaHttpResponse> {
+        // if (!this.authVerifyer.isValid(request.headers)) {
+        //     return {
+        //         body: 'Bad secret',
+        //         headers: {
+        //             'Access-Control-Allow-Origin': '*',
+        //             'Content-Type': 'text/html',
+        //         },
+        //         isBase64Encoded: false,
+        //         statusCode: 400,
+        //     };
+        // }
         let body: any = undefined;
-        const req = JSON.parse(request.body) as JsonRpcRequest;
+        const req = JSON.parse(JSON.stringify(request.body)) as JsonRpcRequest;
         switch (req.command) {
             case 'newSeed':
                 body = await this.totpHandler.newSeed(req.data as any);
+                break;
+            case 'removeSeed':
+                body =  await this.totpHandler.removeSeed(req.data as any);
+                break;
+            case 'getToken':
+                body =  await this.totpHandler.generateToken(req.data as any);
                 break;
             case 'verify':
                 body =  await this.totpHandler.verify(req.data as any);
                 break;
             default:
                 body = { error: 'bad request' }
-        }
+        };
         return {
             body: JSON.stringify(body),
             headers: {

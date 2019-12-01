@@ -18,6 +18,14 @@ export interface NewSeedResult {
     error?: string;
 }
 
+export interface RemoveSeedResult {
+seed: {
+    userId: String,
+    success: boolean
+};
+error?: string;
+}
+
 export interface VerifyTokenRequest {
     userId: string;
     token: string;
@@ -28,3 +36,8 @@ export interface VerifyTokenResult {
     error?: string;
 }
 
+export interface generateTotpResult {
+    token: string;
+    timeleft: number;
+    error?: string;
+}
