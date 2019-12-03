@@ -3,15 +3,16 @@ import {MongooseConnection} from 'aws-lambda-helper';
 import {Connection, Document, Model} from "mongoose";
 import { Injectable } from "ferrum-plumbing";
 
-
 export class SecretHanlder extends MongooseConnection implements Injectable {
     private model: Model<secretInterface & Document> | undefined;
-    constructor() {
+    constructor
+    (
+    ) {
         super();
     }
 
    
-    async get(userId: String): Promise<secretInterface> {
+    async get(userId: String): Promise<any> {
         const secret = await this.getSecret(userId);
         return secret;
     }

@@ -5,20 +5,20 @@ import {TotpHttpHandler} from "./TotpHttpHandler";
 import {AuthenticationVerifyer, JsonRpcRequest} from "ferrum-plumbing";
 
 export class HttpHandler implements LambdaHttpHandler {
-    constructor(private totpHandler: TotpHttpHandler, /*private authVerifyer: AuthenticationVerifyer*/) { }
+    constructor(private totpHandler: TotpHttpHandler, private authVerifyer: AuthenticationVerifyer) { }
 
-    async handle(request: LambdaHttpRequest,context: any): Promise<LambdaHttpResponse> {
-        // if (!this.authVerifyer.isValid(request.headers)) {
-        //     return {
-        //         body: 'Bad secret',
-        //         headers: {
-        //             'Access-Control-Allow-Origin': '*',
-        //             'Content-Type': 'text/html',
-        //         },
-        //         isBase64Encoded: false,
-        //         statusCode: 400,
-        //     };
-        // }
+    async handle(request: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+        if (!this.authVerifyer.isValid(request.headers)) {
+            return {
+                body: 'Bad secret',
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'text/html',
+                },
+                isBase64Encoded: false,
+                statusCode: 400,
+            };
+        }
         let body: any = undefined;
         const req = JSON.parse(JSON.stringify(request.body)) as JsonRpcRequest;
         switch (req.command) {

@@ -1,19 +1,24 @@
 import {KeyValueStore} from "ferrum-plumbing";
 import {SecretHanlder} from './SecretsHandler';
+import {KmsCryptor} from "aws-lambda-helper";
 
 // TODO: Implement
 // You need to set up storage and provide relevant configurations. Firestore can be an option.
 // Bonus: encrypt / decrypt data using AWS KMS before storage
 export class SecureKeyValueStore implements KeyValueStore {
-    constructor(private secretsHandler: SecretHanlder) {
+    constructor(
+        private secretsHandler: SecretHanlder,
+        private cryptor: KmsCryptor,
+        ) {
     }
 
     __name__(): string { return 'SecureKeyValueStore'; }
 
     async getItem<T>(k: string): Promise<any> {
-       const secret = this.secretsHandler.get(k);
-       //Decryption will occur here
-       return secret;
+       const secret = await this.secretsHandler.get(k);
+       const skHex = await this.cryptor.decryptToHex(secret[0].secret);
+       const response = {...secret[0],secret: Buffer.from(skHex, 'hex').toString('utf-8')}
+       return response;
     }
 
     async removeItem<T>(k: string): Promise<void> {
@@ -22,14 +27,14 @@ export class SecureKeyValueStore implements KeyValueStore {
     }
 
     async setItem<T>(k: any, value: T): Promise<any> {
-        const Mongodata = {
-            'secret': k.secret,
+        const encSk = await this.cryptor.encryptHex(Buffer.from(k.secret as string, 'utf-8').toString('hex'));
+        const dataToStore = {
+            'secret': encSk,
             'UserId': k.userId,
-            'secretId': k.token,
+            'secretId': encSk.key,
             'createdAt': Date.now()
         }
-        //encryption will occur here
-        const data = this.secretsHandler.save(Mongodata);
+        const data = this.secretsHandler.save(dataToStore);
         return data;
     }
 }

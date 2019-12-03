@@ -1,17 +1,17 @@
 import { Schema, Connection, Document } from 'mongoose';
 
 export interface secretInterface {
-    secretId: Number,
+    secretId: any,
     UserId: Number,
     createdAt: Number,
-    secret: String
+    secret: any
 }
 
 const secretSchema: Schema = new Schema<secretInterface>({
-    secretId: String,
+    secretId: Object,
     UserId: String,
     createdAt: Number,
-    secret: String
+    secret: Object
 });
 
 export const SecretItemModel = (c: Connection) => c.model<secretInterface&Document>('Secrets', secretSchema);
