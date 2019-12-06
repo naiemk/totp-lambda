@@ -1,17 +1,17 @@
 import { Schema, Connection, Document } from 'mongoose';
-
-export interface secretInterface {
+import {KmsCryptor, MongooseConnection, SqsWrapper} from "aws-lambda-helper";
+export interface SecretInterface {
     secretId: any,
-    UserId: Number,
+    userId: any,
     createdAt: Number,
     secret: any
 }
 
-const secretSchema: Schema = new Schema<secretInterface>({
+const secretSchema: Schema = new Schema<SecretInterface>({
     secretId: Object,
-    UserId: String,
+    userId: String,
     createdAt: Number,
     secret: Object
 });
 
-export const SecretItemModel = (c: Connection) => c.model<secretInterface&Document>('Secrets', secretSchema);
+export const SecretItemModel = (c: Connection) => c.model<SecretInterface&Document>('Secrets', secretSchema);

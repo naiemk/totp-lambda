@@ -16,9 +16,13 @@ export class SecureKeyValueStore implements KeyValueStore {
 
     async getItem<T>(k: string): Promise<any> {
        const secret = await this.secretsHandler.get(k);
-       const skHex = await this.cryptor.decryptToHex(secret[0].secret);
-       const response = {...secret[0],secret: Buffer.from(skHex, 'hex').toString('utf-8')}
-       return response;
+       if(secret[0] === undefined){
+           return null
+       }else{
+        const skHex = await this.cryptor.decryptToHex(secret[0].secret);
+        const response = {...secret[0],secret: Buffer.from(skHex, 'hex').toString('utf-8')}
+        return response;
+       }
     }
 
     async removeItem<T>(k: string): Promise<void> {
@@ -30,11 +34,11 @@ export class SecureKeyValueStore implements KeyValueStore {
         const encSk = await this.cryptor.encryptHex(Buffer.from(k.secret as string, 'utf-8').toString('hex'));
         const dataToStore = {
             'secret': encSk,
-            'UserId': k.userId,
+            'userId': k.userId,
             'secretId': encSk.key,
             'createdAt': Date.now()
         }
-        const data = this.secretsHandler.save(dataToStore);
+        const data = await this.secretsHandler.save(dataToStore);
         return data;
     }
 }

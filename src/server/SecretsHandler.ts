@@ -1,10 +1,10 @@
-import {secretInterface, SecretItemModel} from "./Types";
+import {SecretInterface, SecretItemModel} from "./Types";
 import {MongooseConnection} from 'aws-lambda-helper';
 import {Connection, Document, Model} from "mongoose";
 import { Injectable } from "ferrum-plumbing";
 
 export class SecretHanlder extends MongooseConnection implements Injectable {
-    private model: Model<secretInterface & Document> | undefined;
+    private model: Model<SecretInterface & Document> | undefined;
     constructor
     (
     ) {
@@ -17,39 +17,39 @@ export class SecretHanlder extends MongooseConnection implements Injectable {
         return secret;
     }
 
-    async remove(userId: String): Promise<secretInterface> {
+    async remove(userId: String): Promise<SecretInterface> {
         const response = await this.removeSecret(userId);
         return response;
     }
 
-    async save(Secret: secretInterface): Promise<secretInterface> {
-        const secret = {
-            secretId: Secret.secret,
-            UserId: Secret.UserId,
-            createdAt: Secret.createdAt,
-            secret: Secret.secret
-        } as unknown as secretInterface;
-        await this.saveSecret(secret);
-        return secret;
+    async save(secret: SecretInterface): Promise<SecretInterface> {
+        const secretResponse = {
+            secretId: secret.secret,
+            userId: secret.userId,
+            createdAt: secret.createdAt,
+            secret: secret.secret
+        } as any;
+        const res = await this.saveSecret(secretResponse);
+        return secretResponse as SecretInterface;
     }
 
-    private async removeSecret(userId: String): Promise<secretInterface> {
+    private async removeSecret(userId: String): Promise<SecretInterface> {
         this.verifyInit();
-        const response = await this.model!.deleteOne({'UserId': userId}, function (err) {
+        const response = await this.model!.deleteOne({'userId': userId}, function (err) {
             if (!err){return 'success'} 
-        }).exec() as secretInterface;
+        }).exec() as SecretInterface;
         return response;
     }
 
-    private async getSecret(userId: String): Promise<secretInterface> {
+    private async getSecret(userId: String): Promise<SecretInterface> {
         this.verifyInit();
-        const Secret = this.model!.find({'UserId': userId}, function(err, docs){
+        const Secret = this.model!.find({'userId': userId}, function(err, docs){
            return docs;
-        })as unknown as secretInterface;
-        return Secret;
+        }) as any;
+        return Secret as SecretInterface;
     }
 
-    private async saveSecret(TotpSecret: secretInterface) {
+    private async saveSecret(TotpSecret: SecretInterface) {
         this.verifyInit();
         return await new this.model!(TotpSecret).save();
     }
