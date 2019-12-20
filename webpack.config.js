@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
 	  mode: 'production',
-	  entry: './src/index.ts',
+	  entry: './index.ts',
 	  target: 'node',
 	  devtool: 'inline-source-map',
 	  module: {
@@ -23,4 +23,3 @@ module.exports = {
 		      libraryTarget: 'umd'
 		    }
 };
-

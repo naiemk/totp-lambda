@@ -1,12 +1,32 @@
-import {LambdaHttpRequest, LambdaHttpResponse} from "aws-lambda-helper";
-import {handler} from "../index";
+import {LambdaHttpResponse} from "aws-lambda-helper";
+import {handler} from "..";
+const sinon = require('sinon');
+import {SecureKeyValueStore} from "./server/SecureKeyValueStore";
 
-test('test http request echos data', async () => {
+jest.setTimeout(30000);
+
+test('test http request command', async () => {
     const req = {
-        queryStringParameters: { 'message': 'testing' },
-        httpMethod: 'GET',
-    } as LambdaHttpRequest;
+        'headers': {
+            "X-Secret": "secret"
+        },
+        'httpMethod': "http",
+        'queryStringParameters': {
+         'message': "hello"
+        },
+        'body': {"command":"verify","params":"[]","data":{"userId":"-LuraaWgzmlVwSvSjjKR","token":150113}}
+    }
+    sinon.stub(SecureKeyValueStore.prototype, 'getItem').callsFake(() => {
+       return {
+           body: {
+                data: {
+                    secret:'ER2EQVKDJBYDGR2HIFEGWKD3JNGXWPBS'
+                }
+            }
+        }
+    });
+
     const res = await handler(req, {}) as LambdaHttpResponse;
     expect(res.statusCode).toBe(200);
-    expect(res.body).toBe('You said testing');
+    expect(JSON.parse(res.body).verified).toBe(false);
 });

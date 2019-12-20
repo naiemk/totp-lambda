@@ -14,8 +14,18 @@ export interface NewSeedRequest {
 }
 
 export interface NewSeedResult {
-    seed: TotpSeed;
+    seed?: TotpSeed;
     error?: string;
+    errorResponse?: string
+}
+
+export interface RemoveSeedResult {
+    seed?: {
+        userId: String,
+        success: boolean,
+    };
+    error?: string;
+    message?: string
 }
 
 export interface VerifyTokenRequest {
@@ -24,7 +34,16 @@ export interface VerifyTokenRequest {
 }
 
 export interface VerifyTokenResult {
-    verified: boolean;
+    verified?: boolean;
     error?: string;
+    message?: string;
 }
 
+export interface generateTotpResult {
+    token?: string;
+    timeleft?: number;
+    qrCodeUrl?: string;
+    secret?: string;
+    error?: string;
+    message?: string
+}
