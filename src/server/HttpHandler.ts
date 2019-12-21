@@ -38,7 +38,7 @@ export class HttpHandler implements LambdaHttpHandler {
                 ValidationUtils.isTrue(!!email, '"email" must be provided');
                 const newSeedReq = {
                     userId: (req.userProfile || {}).USER_ID,
-                    label: `${platform}(${email})}`
+                    label: `${platform}(${email})`
                 } as NewSeedRequest;
                 body = await this.totpHandler.newSeed(newSeedReq);
                 break;
