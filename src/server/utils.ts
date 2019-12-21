@@ -1,5 +1,5 @@
 import * as speakeasy from 'speakeasy';
-const QRCode = require('qrcode');
+// const QRCode = require('qrcode');
 import { ValidationUtils} from "ferrum-plumbing";
 require('dotenv').config();
 
@@ -7,14 +7,14 @@ require('dotenv').config();
 
 
 export const respondWithQRCode = (otpauthUrl: any,userId: any) => {
-  QRCode.toFile(`./barCodes/${userId}.png`,otpauthUrl,(err: any) => {
-    if (err) throw err;
-  })
+  // QRCode.toFile(`./barCodes/${userId}.png`,otpauthUrl,(err: any) => {
+  //   if (err) throw err;
+  // })
   return `barCodes/${userId}.png`;
-}
+};
 
-export const getTwoFactorAuthenticationCode = () => {
-    const secretKey = speakeasy.generateSecret({length: 16,name: 'totp-lambda'});
+export const getTwoFactorAuthenticationCode = (label: string) => {
+    const secretKey = speakeasy.generateSecret({length: 16,name: label});
     const otpValues =  {
         otpauthUrl : secretKey.otpauth_url,
         base32: secretKey.base32,
@@ -24,15 +24,15 @@ export const getTwoFactorAuthenticationCode = () => {
         })
     };
   return otpValues;
-}
+};
 
 export const generateToken = (secret:any) => {
   const token=speakeasy.totp({
     secret: secret,
     encoding: "base32",
-  })
+  });
   return token;
-}
+};
 
 export const validateCode = (request: any): boolean => {
    return (
@@ -43,7 +43,7 @@ export const validateCode = (request: any): boolean => {
           window: 0
       })
     );
-  }
+  };
 
   export function getEnv(env: string) {
     const res = process.env[env];

@@ -1,8 +1,17 @@
-// Implement your specific handlers in a separate file
 import {LambdaHttpRequest, LambdaHttpResponse} from "aws-lambda-helper";
 import {LambdaHttpHandler} from "aws-lambda-helper/dist/HandlerFactory";
 import {TotpHttpHandler} from "./TotpHttpHandler";
-import {AuthenticationVerifyer, JsonRpcRequest} from "ferrum-plumbing";
+import {AuthenticationVerifyer, JsonRpcRequest, ValidationUtils} from "ferrum-plumbing";
+import {NewSeedRequest, VerifyTokenRequest} from "../client/Types";
+
+export interface JsonRpcProxyRequest extends JsonRpcRequest {
+    userProfile: any,
+    policyData: any,
+}
+
+function asRequest(body: any | string): JsonRpcProxyRequest {
+    return (typeof body === 'string') ? JSON.parse(body) : body;
+}
 
 export class HttpHandler implements LambdaHttpHandler {
     constructor(private totpHandler: TotpHttpHandler, private authVerifyer: AuthenticationVerifyer) { }
@@ -20,19 +29,33 @@ export class HttpHandler implements LambdaHttpHandler {
             };
         }
         let body: any = undefined;
-        const req = JSON.parse(JSON.stringify(request.body)) as JsonRpcRequest;
+        const req = asRequest(request.body);
         switch (req.command) {
             case 'newSeed':
-                body = await this.totpHandler.newSeed(req.data as any);
+                const platform =  (req.userProfile || {}).PLATFORM;
+                const email = (req.userProfile || {}).EMAIL;
+                ValidationUtils.isTrue(!!platform, '"platform" must be provided');
+                ValidationUtils.isTrue(!!email, '"email" must be provided');
+                const newSeedReq = {
+                    userId: (req.userProfile || {}).USER_ID,
+                    label: `${platform}(${email})}`
+                } as NewSeedRequest;
+                body = await this.totpHandler.newSeed(newSeedReq);
                 break;
             case 'removeSeed':
-                body =  await this.totpHandler.removeSeed(req.data as any);
+                throw new Error('Not allowed');
+                // body =  await this.totpHandler.removeSeed(req.data as any);
                 break;
             case 'getToken':
-                body =  await this.totpHandler.generateToken(req.data as any);
+                throw new Error('Not allowed');
+                // body =  await this.totpHandler.generateToken(req.data as any);
                 break;
             case 'verify':
-                body =  await this.totpHandler.verify(req.data as any);
+                const verifyTokenRequest = {
+                    token: (req.data || {}).token,
+                    userId: (req.userProfile || {}).USER_ID,
+                } as VerifyTokenRequest;
+                body =  await this.totpHandler.verify(verifyTokenRequest);
                 break;
             default:
                 body = { error: 'bad request' }

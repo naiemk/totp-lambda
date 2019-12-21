@@ -16,21 +16,21 @@ export class TotpHttpHandler implements Injectable {
                 error: 'true'
             };
         }else{
-            const otpDetails = getTwoFactorAuthenticationCode();
+            const otpDetails = getTwoFactorAuthenticationCode(request.label);
             const valuesToStore = {
                 'secret': otpDetails.base32,
                 'userId':request.userId,
-            }
+            };
+            const secretToReturn = otpDetails.base32;
             let data = await this.secureStore.setItem(valuesToStore,request.userId);
             return {
                 seed:  {
                         userId: data.userId,
-                        secret: data.secret,
+                        secret: secretToReturn,
                         qrCode: respondWithQRCode(otpDetails.otpauthUrl,data.userId),
                         totpUrl: `${otpDetails.otpauthUrl}`,
                         createdAt: data.createdAt
                 },
-                error: ''
             };
         }
     }
@@ -99,7 +99,6 @@ export class TotpHttpHandler implements Injectable {
                 const valid = validateCode({secret: data.secret,token: request.token});
                 return {
                     verified: valid,
-                    error: ''
                 };
             }
         }
