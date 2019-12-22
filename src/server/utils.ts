@@ -14,7 +14,7 @@ export const respondWithQRCode = (otpauthUrl: any,userId: any) => {
 };
 
 export const getTwoFactorAuthenticationCode = (label: string) => {
-    const secretKey = speakeasy.generateSecret({length: 16,name: label});
+    const secretKey = speakeasy.generateSecret({length: 10,name: label});
     const otpValues =  {
         otpauthUrl : secretKey.otpauth_url,
         base32: secretKey.base32,
