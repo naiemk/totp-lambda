@@ -14,7 +14,7 @@ class ContainerProvider {
     static async container(){
         if (!ContainerProvider._container) {
             ContainerProvider._container = await LambdaGlobalContext.container();
-            await ContainerProvider._container.registerModule(new ServerModule()); // Change this to your defined module
+            await ContainerProvider._container.registerModule(new ServerModule());
         }
         return ContainerProvider._container;
     }
