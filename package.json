@@ -31,7 +31,7 @@
     "@types/jest": "^24.0.13",
     "@types/speakeasy": "^2.0.5",
     "aws-lambda-helper": "git+https://github.com/ferrumnet/aws-lambda-helper.git",
-    "aws-sdk": "^2.496.0",
+    "aws-sdk": "^2.814.0",
     "babel-jest": "^24.8.0",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
